@@ -1,0 +1,28 @@
+{
+  "projects": [
+    {
+      "name": "Atlas",
+      "summary": "Help new contributors get started with clear setup steps and a welcoming first task.",
+      "owner": "Mona Patel",
+      "status": "On track",
+      "recentActivity": "Completed the contributor onboarding flow",
+      "priority": "High"
+    },
+    {
+      "name": "Beacon",
+      "summary": "Make the core experience easier to use for everyone, with accessibility built in.",
+      "owner": "Jordan Lee",
+      "status": "In progress",
+      "recentActivity": "Shared the first accessibility review",
+      "priority": "Medium"
+    },
+    {
+      "name": "Canopy",
+      "summary": "Bring project data together so teams can make informed decisions with confidence.",
+      "owner": "Sam Rivera",
+      "status": "Needs attention",
+      "recentActivity": "Waiting on the data import decision",
+      "priority": "High"
+    }
+  ]
+}

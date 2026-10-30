@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A clear, current view of project status, ownership, activity, and priority.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <p class="eyebrow">Team overview</p>
+        <h1>Project Pulse</h1>
+        <p class="dashboard-intro">A quick read on what the team is building, who is leading it, and what needs attention.</p>
+      </header>
+
+      <section aria-labelledby="projects-heading">
+        <div class="section-heading">
+          <h2 id="projects-heading">Projects</h2>
+        </div>
+        <ul id="project-list" class="project-list" aria-live="polite" aria-busy="true">
+          <li class="loading-state" role="status">Loading projects…</li>
+        </ul>
+      </section>
+    </main>
+
+    <script>
+      const projectList = document.querySelector("#project-list");
+      const requiredFields = ["name", "owner", "status", "recentActivity", "priority", "summary"];
+
+      function showMessage(className, message, role = "status") {
+        const item = document.createElement("li");
+        item.className = className;
+        item.setAttribute("role", role);
+        item.textContent = message;
+        projectList.replaceChildren(item);
+        projectList.setAttribute("aria-busy", "false");
+      }
+
+      function isProjectRecord(project) {
+        return project !== null
+          && typeof project === "object"
+          && requiredFields.every((field) => (
+            typeof project[field] === "string" && project[field].trim().length > 0
+          ));
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("li");
+        card.className = "project-card";
+
+        const heading = document.createElement("h3");
+        heading.textContent = project.name;
+
+        const summary = document.createElement("p");
+        summary.className = "project-summary";
+        summary.textContent = project.summary;
+
+        const owner = document.createElement("p");
+        owner.className = "project-owner";
+        owner.textContent = `Owner: ${project.owner}`;
+
+        const status = document.createElement("p");
+        status.append("Status: ");
+        const statusBadge = document.createElement("span");
+        statusBadge.className = "status-badge";
+        statusBadge.textContent = project.status;
+        status.append(statusBadge);
+
+        const activity = document.createElement("p");
+        activity.className = "recent-activity";
+        activity.textContent = `Recent activity: ${project.recentActivity}`;
+
+        const priority = document.createElement("p");
+        priority.append("Priority: ");
+        const priorityBadge = document.createElement("span");
+        priorityBadge.className = "priority-badge";
+        priorityBadge.textContent = project.priority;
+        priority.append(priorityBadge);
+
+        card.append(heading, summary, owner, status, activity, priority);
+        return card;
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json", { headers: { Accept: "application/json" } });
+          if (!response.ok) {
+            throw new Error(`Project data request failed with status ${response.status}.`);
+          }
+
+          const data = await response.json();
+          if (data === null || typeof data !== "object" || !Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a projects array.");
+          }
+          if (!data.projects.every(isProjectRecord)) {
+            throw new Error("One or more project records are missing required information.");
+          }
+
+          if (data.projects.length === 0) {
+            showMessage("empty-state", "There are no projects to display yet.");
+            return;
+          }
+
+          projectList.replaceChildren(...data.projects.map(createProjectCard));
+          projectList.setAttribute("aria-busy", "false");
+        } catch (error) {
+          showMessage("error-state", "Projects could not be loaded. Please try again later.", "alert");
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>
